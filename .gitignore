@@ -1,0 +1,8 @@
+/bmstu_db
+/data
+*.env
+*.puml
+*test.txt
+/venv
+/.vscode
+**/__pycache__
