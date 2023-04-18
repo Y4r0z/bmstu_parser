@@ -1,0 +1,82 @@
+@startuml Classes
+class Main
+
+class WebParser
+{   
+    taskManager : TaskManager
+    dbManager : DatabaseManager
+    asyncLoop : asyncio.EventLoop
+}
+
+Main <--- WebParser
+
+class DatabaseManager
+{
+    merge()
+}
+class TaskManager
+{
+    tasks : list[Task]
+    workers : list[ParseWorker]
+    loop : asyncio.EventLoop
+}
+
+WebParser <--- DatabaseManager
+WebParser <--- TaskManager
+
+class DatabaseModels
+{
+    Teacher
+    Course
+    Activity
+    ActivityType
+    File 
+    FileType 
+    FileExtension
+}
+class ParseWorker
+{
+    session : iohttp.Session 
+}
+class parseFunctions
+{
+    parseTeacher()
+    parseCourse()
+    parseActivity()
+    parseFile()
+    ...()
+}
+
+parseFunctions ---> ParseWorker
+DatabaseManager <--- DatabaseModels
+ParseWorker ---* TaskManager
+
+class ModelEnums
+{
+    ActivityTypes
+    FileTypes
+    FileExtensions
+}
+DatabaseModels --> ModelEnums
+
+class Task
+{
+    +exec()
+    -start()
+    -end()
+}
+class AllCoursesTask
+class CourseTask
+class ActivityTask
+class FileTask
+
+TaskManager *--- Task
+
+AllCoursesTask ---|> Task
+CourseTask ---|> Task
+ActivityTask ---|> Task
+FileTask ---|> Task
+
+
+
+@enduml
