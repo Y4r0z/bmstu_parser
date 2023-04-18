@@ -1,0 +1,49 @@
+@startuml Database
+object Teacher{
+    link : str(primary key)
+    name : str
+    email : str
+}
+object Teacher_Course{
+    teacher_link : str
+    course_link : str
+}
+object Course{
+    link : str(primary key)
+    name : str
+}
+Course -- Teacher_Course : link
+Teacher -- Teacher_Course : link
+
+object Activity{
+    link : str(primary key)
+    name : str
+    description : str
+    type_id : int,
+    course_id : int
+}
+Course ||--|{ Activity : course_link
+object ActivityType{
+    name : str(primary key)
+    data : str
+}
+Activity --|| ActivityType : activity_link
+object File{
+    link : str(primary key)
+    name : str
+    path : str
+    activity : Activity
+    type_id : int
+    downloadProgress : float
+}
+object FileType{
+    name : str(primary key)
+}
+object FileExtension{
+    name : str(primary key)
+}
+
+File --|| FileExtension : extension_name
+FileType ||-o{ FileExtension
+Activity }o--|| File
+@enduml
