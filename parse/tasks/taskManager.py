@@ -18,16 +18,18 @@ class TaskManger:
     async def start(self):
         n = 0
         while len(self.tasks) != 0 and not self._forceStop:
-            n+=1
             for task in self.tasks:
                 for worker in self.workers:
                     if task.started == False and worker.busy == False:
+                        if task.id > 100 and False: return
                         task.started = True
                         worker.busy = True
-                        print(f'Exec task: {task.id} by worker {worker.id}. n: {n}')
+                        print(f'Exec task: {task.id} by worker {worker.id}. n: {n}. Type: {task.__class__.__name__}')
                         self.loop.create_task(task.exec(worker))
                         n = 0
-            await asyncio.sleep(0.01)
+            await asyncio.sleep(0.1)
+            n+=1
+
         print('Stopped task manager')
         self.close()
 

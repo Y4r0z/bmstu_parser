@@ -5,7 +5,7 @@ from dotenv import load_dotenv, find_dotenv
 def main():
     load_dotenv(find_dotenv())
     #filename='data/app_logs.txt', encoding='utf-8', 
-    log.basicConfig(level=log.ERROR)
+    log.basicConfig(level=log.WARNING)
     wb = WebParser()
     wb.start()
 

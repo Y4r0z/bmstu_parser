@@ -4,6 +4,8 @@ from bs4 import BeautifulSoup as bs ,Tag
 from db.models import Course, Teacher, Activity, File
 import logging as log
 from db.enums import ActivityTypes, FileExtensions
+import time
+from urllib.parse import unquote_plus
 
 
 async def getCookie(session : ClientSession) -> str:
@@ -68,11 +70,9 @@ async def parseActivities(session : ClientSession, course : Course) -> list[Acti
             log.info('Unable to get activity link: ' + str(e))
             link = None
             continue
-        name= inst.find(class_='instancename').text 
+        name = inst.find(class_='instancename').contents[0]
         if type == ActivityTypes.Undefined.value: log.warning(f'activity type is undefined: {a["class"][1]} | {course.name}, {name}, {link}')
         act = Activity(course=course, name=name, link=link, type=type)
-        log.info(f'Parsed activity: {str(act)}')
-        #act.files = await self.parseFiles(act)
         res.append(act)
     return res
 
@@ -88,11 +88,11 @@ async def parseFiles(session : ClientSession, activity : Activity) -> list[File]
     res = []
     if activity.type == AT.Assign.value:
         res.extend(await getFilesAssign(session, activity))
-    elif activity == AT.Resource.value:
-        ...
-    elif activity == AT.Folder.value:
-        ... 
-
+    elif activity.type == AT.Resource.value:
+        res.extend(await getResource(session, activity))
+    elif activity.type == AT.Folder.value:
+        res.extend(await getFilesFolder(session, activity))
+    
     return res
 
 async def getFilesAssign(session : ClientSession, activity : Activity) -> list[File]:
@@ -111,14 +111,40 @@ async def getFilesAssign(session : ClientSession, activity : Activity) -> list[F
             log.info(f'Parsed file: {str(file)}')
             res.append(file)
         except Exception as e:
-            log.warning('Can\'t find file: ' + str(e))
+            log.warning('Can\'t find in assign file: ' + str(e))
     return res
 
-def getFilesFolder(self, activity : Activity) -> list[File]:
-    return []
-def getFilesResource(self, activity : Activity) -> list[File]:
-    return []
-def getAudioResource():
-    ...
-def getImageResource():
-    ...
+async def getResource(session : ClientSession, activity : Activity) -> list[File]:
+    async with session.head(activity.link, allow_redirects=True) as s:
+        link : str = str(s.url)
+    try:
+        rawName = link.split('/')[-1]
+        rawName = unquote_plus(rawName, encoding='utf-8')
+        name, rawExt = path.splitext(rawName)
+        file = File(name=activity.name, link=link, activity=activity, extension=FileExtensions.Get(rawExt))
+        log.info(f'Parsed file: {str(file)}')
+        return [file]
+    except Exception as e:
+        log.error(f'Can\'t resource parse file for activity: {str(activity)}\n {str(e)}')
+        return []
+    
+async def getFilesFolder(session : ClientSession, activity : Activity) -> list[File]:
+    res = []
+    async with session.get(activity.link) as r:
+        text = await r.text()
+        page = bs(text, 'html.parser')
+    find = page.findAll('span', class_='fp-filename-icon')
+    f : Tag
+    for f in find:
+        try:
+            rawFile = f.find('a')
+            link = str(rawFile.get('href'))
+            rawName = link.split('/')[-1].split('?')[0]
+            rawName = unquote_plus(rawName, encoding='utf-8')
+            name, rawExt = path.splitext(rawName)
+            file = File(name=name, link=link, activity=activity, extension=FileExtensions.Get(rawExt))
+            log.info(f'Parsed file: {str(file)}')
+            res.append(file)
+        except Exception as e:
+            log.error(f'Can\'t parse folder file from activity: {str(activity)}.\n{str(e)}')
+    return res

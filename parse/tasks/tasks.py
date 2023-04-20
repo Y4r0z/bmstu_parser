@@ -1,12 +1,13 @@
 from parse.parseWorker import ParseWorker
 from db.models import Course, Activity
 from bs4 import Tag
+import time
 
 class Task:
     Count = 0
     def __init__(self, tasks : list) -> None:
         self.started = False
-        self.tasks = tasks
+        self.tasks =  tasks
         self.id = self.Count
         tasks.append(self)
         Task.Count += 1
@@ -15,11 +16,11 @@ class Task:
         raise NotImplementedError('Exec method is not implemented!')
 
     def start(self):
+        self.timer = time.time()
         self.started = True
         self.tasks.remove(self)
 
     def end(self):
-        #self.tasks.remove(self)
         ...
     
 

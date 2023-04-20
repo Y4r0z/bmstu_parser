@@ -98,6 +98,3 @@ class ParseWorker:
     
     def loadCookies(self):
         self.cookies.load(self.CookiePath + f'cookie{self.id}')
-        
-    
-            

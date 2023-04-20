@@ -18,8 +18,13 @@ class WebParser:
         self.loop = asyncio.get_event_loop()
 
         print('Create TM')
-        self.tm = TaskManger(self.loop, 4)
-
+        self.tm = TaskManger(self.loop, 6)
+        """
+        Заметка о быстродействии нескольких воркеров. Минимальное время работы - на 7 воркерах,
+        на 8 уже начинается замедление.
+        С увеличением кол-ва воркеров до 7, увеличение быстродействия становится все менее заметным.
+        Но это также зависит от скорости интернета.
+        """
         timer = time.time()
         tt = lambda: time.time() - timer
         courses = []
