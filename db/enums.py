@@ -7,17 +7,22 @@ from db.models import FileType, ActivityType, FileExtension
 """
 
 
-class PseudoEnum:
+class PseudoEnum(type):
+     target = type
      """
      Псевдо-`Enum` для того, чтобы было удобнее работать с содержимым классов.
+
+     Полный функционл `Enum` тут не требуется.
      """
-     def __iter__(self):
-          return iter(self.__dict__.values())
+     def __iter__(cls): 
+          return (i for i in cls.__dict__.values() if type(i) is cls.target)
      
 
-class ActivityTypes(PseudoEnum):
+class ActivityTypes(metaclass=PseudoEnum):
     """
-    Типы активностей. Все объекты внутри курса считаются активностями, 
+    Типы активностей.
+    
+    Все объекты внутри курса считаются активностями, 
     если активность является одним файлом, 
     то в базе данных она будет представлена и файлом, и самой активностью.
     Активность может содержать в себе несколько файлов (Assign, Folder) 
@@ -25,6 +30,8 @@ class ActivityTypes(PseudoEnum):
     
     Названия активностей соотвутствуют названиям из HTML тегов сайта.
     """
+    target = ActivityType
+
     Undefined = ActivityType(name='undefined')
     Resource = ActivityType(name='resource')
     Assign = ActivityType(name='assign')
@@ -39,10 +46,12 @@ class ActivityTypes(PseudoEnum):
     Workshop = ActivityType(name='workshop')
 
 
-class FileTypes(PseudoEnum):
+class FileTypes(metaclass=PseudoEnum):
     """
     Типы файлов. Как правило, один тип файла открывает одна программа.
     """
+    target = FileType
+
     Undefiend = FileType(name='undefiend')
     Word = FileType(name='word')
     Pdf = FileType(name='pdf')
@@ -76,7 +85,7 @@ def FEList(names : str, type : FileType):
         """
         return [FileExtension(name=i, fileType=type) for i in names.split('.')]
 
-class FileExtensions(PseudoEnum):
+class FileExtensions(metaclass=PseudoEnum):
     """
     Расширения файлов. У одного типа файла может быть множество расширений.
 
@@ -85,6 +94,8 @@ class FileExtensions(PseudoEnum):
     Данный класс создан, чтобы правильно присваивать типы файлам по их расширениям.
 
     """
+
+    target = list[FileExtension]
 
     @classmethod
     def Get(cls, name : str):
@@ -102,7 +113,7 @@ class FileExtensions(PseudoEnum):
             Найденное расширение или расширение `undefined`.
         """
         type : list[FileExtension]
-        for type in cls.__dict__.values():
+        for type in cls:
              for ext in type:
                 if ext.name == name.lower() or ext.name == name.replace('.','').lower():
                     return ext

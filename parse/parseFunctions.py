@@ -172,7 +172,7 @@ async def getResource(session : ClientSession, activity : Activity) -> list[File
         log.info(f'Parsed file: {str(file)}')
         return [file]
     except Exception as e:
-        log.error(f'Can\'t resource parse file for activity: {str(activity)}\n {str(e)}')
+        log.error(f'Can\'t parse resource file for activity: {str(activity)}\n {str(e)}')
         return []
     
 async def getFilesFolder(session : ClientSession, activity : Activity) -> list[File]:

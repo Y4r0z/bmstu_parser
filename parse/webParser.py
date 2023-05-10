@@ -23,7 +23,7 @@ class WebParser:
         self.loop = asyncio.get_event_loop()
 
         print('Create TM')
-        self.tm = TaskManger(self.loop, 6)
+        self.tm = TaskManger(self.loop, 4)
         """
         Заметка о быстродействии нескольких воркеров. Минимальное время работы - на 7 воркерах,
         на 8 уже начинается замедление.
