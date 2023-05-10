@@ -125,7 +125,7 @@ async def parseFiles(session : ClientSession, activity : Activity) -> list[File]
     if activity.link is None or len(activity.link) < 2 or\
         activity.type in [AT.Undefined, AT.Chat, AT.Forum, AT.Label, AT.Lession,
                             AT.Quiz, AT.Url, AT.Workshop]:
-        log.warning('Attempt to get files for incorrect activity:' + activity.name)
+        log.warning('Attempt to get files for incorrect activity:' + activity.name + ': ' + activity.link)
         return []
     res = []
     if activity.type == AT.Assign:
@@ -134,7 +134,6 @@ async def parseFiles(session : ClientSession, activity : Activity) -> list[File]
         res.extend(await getResource(session, activity))
     elif activity.type == AT.Folder:
         res.extend(await getFilesFolder(session, activity))
-    
     return res
 
 

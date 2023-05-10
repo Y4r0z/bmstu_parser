@@ -32,18 +32,18 @@ class ActivityTypes(metaclass=PseudoEnum):
     """
     target = ActivityType
 
-    Undefined = ActivityType(name='undefined')
-    Resource = ActivityType(name='resource')
-    Assign = ActivityType(name='assign')
-    Chat = ActivityType(name='chat')
-    Url = ActivityType(name='url')
-    Folder = ActivityType(name='folder')
-    Forum = ActivityType(name='forum')
-    Quiz = ActivityType(name='quiz')
-    Label = ActivityType(name='label')
-    Page = ActivityType(name='page')
-    Lession = ActivityType(name='lesson')
-    Workshop = ActivityType(name='workshop')
+    Undefined = target(name='undefined')
+    Resource = target(name='resource')
+    Assign = target(name='assign')
+    Chat = target(name='chat')
+    Url = target(name='url')
+    Folder = target(name='folder')
+    Forum = target(name='forum')
+    Quiz = target(name='quiz')
+    Label = target(name='label')
+    Page = target(name='page')
+    Lession = target(name='lesson')
+    Workshop = target(name='workshop')
 
 
 class FileTypes(metaclass=PseudoEnum):
@@ -52,20 +52,20 @@ class FileTypes(metaclass=PseudoEnum):
     """
     target = FileType
 
-    Undefiend = FileType(name='undefiend')
-    Word = FileType(name='word')
-    Pdf = FileType(name='pdf')
-    Excel = FileType(name='excel')
-    Text = FileType(name='text')
-    Audio = FileType(name='audio')
-    Archive = FileType(name='archive')
-    Image = FileType(name='image')
-    Video = FileType(name='video')
-    Database = FileType(name='database')
-    Exe = FileType(name='exe')
-    Html = FileType(name='html')
-    PowerPoint = FileType(name='powerPoint')
-    Code = FileType(name='code')
+    Undefiend = target(name='undefiend')
+    Word = target(name='word')
+    Pdf = target(name='pdf')
+    Excel = target(name='excel')
+    Text = target(name='text')
+    Audio = target(name='audio')
+    Archive = target(name='archive')
+    Image = target(name='image')
+    Video = target(name='video')
+    Database = target(name='database')
+    Exe = target(name='exe')
+    Html = target(name='html')
+    PowerPoint = target(name='powerPoint')
+    Code = target(name='code')
 
 
 def FEList(names : str, type : FileType):
@@ -119,18 +119,18 @@ class FileExtensions(metaclass=PseudoEnum):
                     return ext
         return FileExtension(name='undefined', fileType=FileTypes.Undefiend)  
     
-    Word : list[FileExtension] = FEList('doc.dot.wbk.docx.docm.docb.wll.wwl.odt', FileTypes.Word)
-    Pdf : list[FileExtension] = FEList('pdf', FileTypes.Pdf)
-    Excel : list[FileExtension] = FEList('xls.xlt.xlm.xlsx.xlsm.xltx.xltm.xlsb.xla.xlam.xll.xlw.csv', FileTypes.Excel)
-    PowerPoint  : list[FileExtension] = FEList('ppt.pot.pps.ppa.ppam.pptx.pptm.potx.potm.ppam.ppsx.ppsm.sldx.sldm.pa', FileTypes.PowerPoint)
-    Text : list[FileExtension] = FEList('txt.log', FileTypes.Text)
-    Audio : list[FileExtension] = FEList('aif.cda.mid.midi.mp3.mpa.ogg.wav.wma.wpl', FileTypes.Audio)
-    Archive : list[FileExtension] = FEList('7z.arj.deb.pkg.rar.epm.tar.gz.z.zip', FileTypes.Archive)
-    Image : list[FileExtension] = FEList('bmp.gid.ico.jpeg.jpg.png.psd.sbg.tif.tiff.webp', FileTypes.Image)
-    Video : list[FileExtension] = FEList('3g2.3gp.avi.flv.h264.m4v.mkv.mov.mp4.mpg.mpeg.rm.swf.vob.webm.wmv', FileTypes.Video)
-    Database : list[FileExtension] = FEList('db.dbf.mdb.sql.fdb', FileTypes.Database)
-    Exe : list[FileExtension] = FEList('exe.bat.apk.wsf.msi.com', FileTypes.Exe)
-    Html : list[FileExtension] = FEList('html.htm', FileTypes.Html)
-    Code : list[FileExtension] = FEList('c.h.cpp.hpp.py.cgi.pl.py.cs.php.swift.sh.json.xml.r.asm.pdb.src.css.js.cls.', FileTypes.Code)
+    Word : target = FEList('doc.dot.wbk.docx.docm.docb.wll.wwl.odt', FileTypes.Word)
+    Pdf : target = FEList('pdf', FileTypes.Pdf)
+    Excel : target = FEList('xls.xlt.xlm.xlsx.xlsm.xltx.xltm.xlsb.xla.xlam.xll.xlw.csv', FileTypes.Excel)
+    PowerPoint  : target = FEList('ppt.pot.pps.ppa.ppam.pptx.pptm.potx.potm.ppam.ppsx.ppsm.sldx.sldm.pa', FileTypes.PowerPoint)
+    Text : target = FEList('txt.log', FileTypes.Text)
+    Audio : target = FEList('aif.cda.mid.midi.mp3.mpa.ogg.wav.wma.wpl', FileTypes.Audio)
+    Archive : target = FEList('7z.arj.deb.pkg.rar.epm.tar.gz.z.zip', FileTypes.Archive)
+    Image : target = FEList('bmp.gid.ico.jpeg.jpg.png.psd.sbg.tif.tiff.webp', FileTypes.Image)
+    Video : target = FEList('3g2.3gp.avi.flv.h264.m4v.mkv.mov.mp4.mpg.mpeg.rm.swf.vob.webm.wmv', FileTypes.Video)
+    Database : target = FEList('db.dbf.mdb.sql.fdb', FileTypes.Database)
+    Exe : target = FEList('exe.bat.apk.wsf.msi.com', FileTypes.Exe)
+    Html : target = FEList('html.htm', FileTypes.Html)
+    Code : target = FEList('c.h.cpp.hpp.py.cgi.pl.py.cs.php.swift.sh.json.xml.r.asm.pdb.src.css.js.cls.', FileTypes.Code)
 
     
