@@ -9,6 +9,13 @@ from urllib.parse import unquote_plus
 
 
 async def getCookie(session : ClientSession) -> str:
+    """
+    Для входа недостаточно лишь логина и пароля, требуется так называемые `Cookie,`
+    который по неизвестным мне причинам нахдятся на странице входа, как скрытое поле.
+    
+    Зачем они нужны при входе, я не знаю. Также я заметил, что и рандомная строка вместо
+    `Cookie` иногда тоже позволяет войти.
+    """
     async with session.get('https://proxy.bmstu.ru:8443/cas/login?service=https://e-learning.bmstu.ru/kaluga/login/index.php?authCAS=CAS')\
     as r:
         page = bs(await r.text(), 'html.parser')
@@ -16,6 +23,9 @@ async def getCookie(session : ClientSession) -> str:
     return find.findAll('input', type='hidden')[0]['value']
 
 async def getPayload(session : ClientSession) -> dict:
+    """
+    Сформировать `payload` для post запроса.
+    """
     return {
         'username' : environ.get("BMSTULogin"),
         'password' : environ.get("BMSTUPassword"),
@@ -26,6 +36,11 @@ async def getPayload(session : ClientSession) -> dict:
 
 
 async def parseCourse(coursebox : Tag) -> Course:
+    """
+    Преобразует html курса в объект класса `Course`.
+
+    Курсом является каждый предмет на главной странице сайта.
+    """
     log.info(f'Async parse: Course')
     nm = coursebox.find(class_ = 'coursename').find('a')
     teachers = await parseTeachers(coursebox)
@@ -35,6 +50,14 @@ async def parseCourse(coursebox : Tag) -> Course:
     return crs
 
 async def parseTeachers(coursebox : Tag) -> list[Teacher]:
+    """
+    Парсит список преподавателей из html курса.
+
+    Список преподавателей расположен под курсом на сайте.
+
+    TODO:
+    * Парсинг email
+    """
     log.info(f'Async parse: Teachers')
     teachers : Tag = coursebox.find('ul', class_ = 'teachers')
     res = []
@@ -47,6 +70,14 @@ async def parseTeachers(coursebox : Tag) -> list[Teacher]:
     return res
 
 async def parseActivities(session : ClientSession, course : Course) -> list[Activity]:
+    """
+    Парсит список активностей из объекта курса.
+
+    Активностями называются все объекты внутри курса.
+
+    Если у активности нет ссылки (если она закрыта для пользователя), то
+    парсер её пропустит.
+    """
     log.info(f'Async parse: Activties from {str(course)}')
     res = []
     async with session.get(course.link) as r:
@@ -56,12 +87,12 @@ async def parseActivities(session : ClientSession, course : Course) -> list[Acti
     a : Tag
     for a in find:
         #Если не найден тип активности, то она будет неизвестной
-        type = ActivityTypes.Undefined.value
+        type = ActivityTypes.Undefined
         for at in ActivityTypes:
-            if a['class'][1].lower() == at.value.name.lower():
-                type = at.value
+            if a['class'][1].lower() == at.name.lower():
+                type = at
         #Активность без контента - пропускается
-        if type == ActivityTypes.Label.value: continue
+        if type == ActivityTypes.Label: continue
         inst = a.find(class_='activityinstance')
         #Если не найдена ссылка на активность, то она None
         try:
@@ -71,29 +102,45 @@ async def parseActivities(session : ClientSession, course : Course) -> list[Acti
             link = None
             continue
         name = inst.find(class_='instancename').contents[0]
-        if type == ActivityTypes.Undefined.value: log.warning(f'activity type is undefined: {a["class"][1]} | {course.name}, {name}, {link}')
+        if type == ActivityTypes.Undefined: log.warning(f'activity type is undefined: {a["class"][1]} | {course.name}, {name}, {link}')
         act = Activity(course=course, name=name, link=link, type=type)
         res.append(act)
     return res
 
 
 async def parseFiles(session : ClientSession, activity : Activity) -> list[File]:
+    """
+    Парсит список файлов из объекта активности.
+
+    Каждому файлу обязательно соответствуент активность,
+    даже если они оба - один и тот же объект на сайте.
+
+    TODO:
+    * Парсить звуковые файлы. Они встречаются редко, поэтому их можно отложить.
+    * Изменить систему выбора парсера c if else на более подходящее ООП.
+
+    """
     log.info(f'Async parse: Files from {str(activity)}')
     AT = ActivityTypes
     if activity.link is None or len(activity.link) < 2 or\
-        activity.type in [AT.Undefined.value, AT.Chat.value, AT.Forum.value, AT.Label.value, AT.Lession.value,
-                            AT.Quiz.value, AT.Url.value, AT.Workshop.value]:
+        activity.type in [AT.Undefined, AT.Chat, AT.Forum, AT.Label, AT.Lession,
+                            AT.Quiz, AT.Url, AT.Workshop]:
         log.warning('Attempt to get files for incorrect activity:' + activity.name)
         return []
     res = []
-    if activity.type == AT.Assign.value:
+    if activity.type == AT.Assign:
         res.extend(await getFilesAssign(session, activity))
-    elif activity.type == AT.Resource.value:
+    elif activity.type == AT.Resource:
         res.extend(await getResource(session, activity))
-    elif activity.type == AT.Folder.value:
+    elif activity.type == AT.Folder:
         res.extend(await getFilesFolder(session, activity))
     
     return res
+
+
+"""
+Далее идут отдельные парсеры для каждого типа файлов.
+"""
 
 async def getFilesAssign(session : ClientSession, activity : Activity) -> list[File]:
     res = []
@@ -118,7 +165,7 @@ async def getResource(session : ClientSession, activity : Activity) -> list[File
     async with session.head(activity.link, allow_redirects=True) as s:
         link : str = str(s.url)
     try:
-        rawName = link.split('/')[-1]
+        rawName = link.split('/')[-1].split('?')[0]
         rawName = unquote_plus(rawName, encoding='utf-8')
         name, rawExt = path.splitext(rawName)
         file = File(name=activity.name, link=link, activity=activity, extension=FileExtensions.Get(rawExt))

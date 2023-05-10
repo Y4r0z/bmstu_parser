@@ -2,10 +2,22 @@ from sqlalchemy.orm import DeclarativeBase, mapped_column, Mapped, relationship
 from sqlalchemy import String, Integer, Float, ForeignKey, Table, Column
 from typing import List
 
+
+"""
+Подробнее о моделях можно также узнать в parse/parseFunction.py
+"""
+
 class Base(DeclarativeBase):
+    """
+    Базовый класс модели SQLAlchemy
+    """
     ...
 
 class BaseName(Base):
+    """
+    Базовый класс, у которого есть только название (вместо ID).
+    Пример: `Extension` - у этого класса все имена уникальные и служат идентификатором.
+    """
     __abstract__ = True
 
     name : Mapped[str] = mapped_column(String, primary_key=True)
@@ -14,6 +26,9 @@ class BaseName(Base):
         return f'<{self.__tablename__}: {self.name}>'
 
 class BaseModel(Base):
+    """
+    Обычная модель с названием и ID.
+    """
     __abstract__ = True
 
     id : Mapped[int] = mapped_column(Integer, nullable=False, unique=True, primary_key=True, autoincrement=True)
@@ -23,6 +38,10 @@ class BaseModel(Base):
         return f'<{self.__tablename__}: {self.name}#{self.id}>'
 
 class BaseLinkModel(Base):
+    """
+    Модель, в которой вместо ID используется ссылка на объект.
+    Данный подход можно использовать, так как у всех объектов уникальные ссылки.
+    """
     __abstract__ = True
 
     link : Mapped[str] = mapped_column(String, primary_key=True)

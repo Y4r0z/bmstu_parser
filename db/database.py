@@ -2,7 +2,14 @@ from sqlalchemy import create_engine, select, insert, update
 from sqlalchemy.orm import Session
 from db.models import Teacher, Course, Activity, ActivityType, File, FileType, FileExtension, Base, BaseLinkModel, BaseName
 from typing import List
+
+
 class DatabaseManager:
+    """
+    Класс, управляющей базой данных. Содержит не так много функций, так как
+    её обновление происходит путем объединения курсов, которые содержат всю информацю 
+    в иерархическом виде.
+    """
     def __init__(self) -> None:
         self.engine = create_engine('sqlite:///data/bmstu.db', echo=False)
         Base.metadata.create_all(self.engine)
@@ -22,6 +29,16 @@ class DatabaseManager:
             s.commit()
     
     def addCourses(self, lst : List[Course]):
+        """
+        Функция, которая добавляет курсы в базу данных или обновляет их.
+
+        Других функций для работы с БД не требуется, так как курсы содержат
+        в себе всю остальную инфрмацию.
+
+        NOTE:
+        Раньше курсы объединялись вручную, перечислением, но теперь 
+        всю работу делает `merge()`.
+        """
         if len(lst) == 0:
             return
         with Session(self.engine) as s:
@@ -47,7 +64,7 @@ class DatabaseManager:
             newModels.append(m if q is None else q)
         return newModels
     
-    def mergeActivties(self, session : Session, activities : list[Activity]):
+    def _mergeActivties(self, session : Session, activities : list[Activity]):
         newActivities = []
         if activities is None or len(activities) == 0:
             return newActivities

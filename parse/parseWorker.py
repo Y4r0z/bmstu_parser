@@ -7,6 +7,11 @@ import parse.parseFunctions as pf
 import os
 
 class ParseWorker:
+    """
+    Этот класс отвечает за работу парсера из отдельной сессии.
+    Для каждого экземпляра производится вход, но все они работают
+    в одном цикле `asyncio`.
+    """
     Count = 0
     CookiePath = 'data/workers/'
 
@@ -35,11 +40,23 @@ class ParseWorker:
         await self.session.close()
 
     async def checkLogin(self):
+        """
+        Использование данного метода позволяет сэкономить время на автризации.
+        
+        После завершения работы программа сохраняет все использованные сессии
+        в файлы, этот метод открывает эти файлы и проверяет работоспособность
+        сессий.
+
+        TODO:
+        * Декоратор для `busy`
+        """
+        # Загрузка сессии из файла
         try:
             self.loadCookies()
             log.info('Cookie загружены из файла')
         except Exception as e:
             log.warning(f'Не удалось загрузить Cookie из файла: {str(e)}')
+        # Открытие сайта без входа
         try:
             async with self.session.get('https://e-learning.bmstu.ru/kaluga/') as r:
                 text = await r.text()
@@ -47,6 +64,7 @@ class ParseWorker:
         except Exception as e:
             log.error("Unable to connect to e-learning server!")
             return
+        # Проверка работоспособности сессии
         find = page.find('span', class_ = 'login')
         if find:
             log.info("Первичный вход не удался. Создание новой сессии.")

@@ -2,6 +2,12 @@ from parse.webParser import WebParser
 import logging as log
 from dotenv import load_dotenv, find_dotenv
 
+
+"""
+Данная программа парсит всё содержимое сайта.
+В будущем она будет использоваться лишь для парсинга определенных объектов.
+"""
+
 def main():
     load_dotenv(find_dotenv())
     #filename='data/app_logs.txt', encoding='utf-8', 

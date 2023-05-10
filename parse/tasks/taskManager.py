@@ -6,6 +6,11 @@ from asyncio import AbstractEventLoop
 import asyncio
 
 class TaskManger:
+    """
+    Класс для управления задачами. Он нужен для:
+    * Распределения `задач (Task)` между `воркерами (Worker)`
+    * Поддержания работы программы и автоматического её завершения при окончании парсинга
+    """
     def __init__(self, loop : AbstractEventLoop, workersCount : int) -> None:
         self.loop = loop
         self.workersCount = workersCount
@@ -27,7 +32,7 @@ class TaskManger:
                         print(f'Exec task: {task.id} by worker {worker.id}. n: {n}. Type: {task.__class__.__name__}')
                         self.loop.create_task(task.exec(worker))
                         n = 0
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.01)
             n+=1
 
         print('Stopped task manager')
