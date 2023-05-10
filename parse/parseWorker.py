@@ -33,7 +33,7 @@ class ParseWorker:
         self.busy = False
     
     def __del__(self):
-        asyncio.run(self.close())
+        asyncio.shield(self.close())
     
     async def close(self):
         self.saveCookies()
