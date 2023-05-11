@@ -19,10 +19,7 @@ class WebParser:
         self.db = DatabaseManager()
 
     def start(self):
-        print('Start') 
         self.loop = asyncio.get_event_loop()
-
-        print('Create TM')
         self.tm = TaskManger(self.loop, 4)
         """
         Заметка о быстродействии нескольких воркеров. Минимальное время работы - на 7 воркерах,
@@ -30,24 +27,14 @@ class WebParser:
         С увеличением кол-ва воркеров до 7, увеличение быстродействия становится все менее заметным.
         Но это также зависит от скорости интернета.
         """
-        timer = time.time()
-        tt = lambda: time.time() - timer
         courses = []
-
-        print(f'1st: {tt()}')
-        
-        print('Parse All Courses')
         self.tm.parseAllCourses(courses)
-        print('Start TM')
-        self.loop.run_until_complete(self.tm.start())
-
-        print(f'2nd: {tt()}')
-        
+        self.loop.create_task(self.tm.start(recursive=False))
+        self.loop.run_forever() 
         try:
             self.db.addCourses(courses)
         except Exception as e:
             print(e)
-        print('Stop', tt())
 
 
 

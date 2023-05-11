@@ -2,6 +2,7 @@ from parse.webParser import WebParser
 import logging as log
 from dotenv import load_dotenv, find_dotenv
 
+from debug.timer import Timer
 
 """
 Данная программа парсит всё содержимое сайта.
@@ -14,7 +15,6 @@ def main():
     log.basicConfig(level=log.WARNING)
     wb = WebParser()
     wb.start()
-
 
 if __name__ == '__main__':
     main()

@@ -20,7 +20,7 @@ class TaskManger:
         self.loop.run_until_complete(asyncio.gather(*tasks)) 
         self._forceStop = False
     
-    async def start(self):
+    async def start(self, recursive = True):
         n = 0
         while len(self.tasks) != 0 and not self._forceStop:
             for task in self.tasks:
@@ -30,11 +30,10 @@ class TaskManger:
                         task.started = True
                         worker.busy = True
                         print(f'Exec task: {task.id} by worker {worker.id}. n: {n}. Type: {task.__class__.__name__}')
-                        self.loop.create_task(task.exec(worker))
+                        self.loop.create_task(task.exec(worker, recursive=recursive))
                         n = 0
             await asyncio.sleep(0.01)
             n+=1
-
         print('Stopped task manager')
         self.close()
 
@@ -68,7 +67,7 @@ class TaskManger:
     def close(self):
         self._forceStop = True
         self.loop.stop()
-
+        
     def __del__(self):
         self.tasks.clear()
         self.workers.clear()
