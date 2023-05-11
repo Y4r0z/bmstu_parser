@@ -1,12 +1,12 @@
 from aiohttp import ClientSession
-from os import environ, path
+from os import path
 from bs4 import BeautifulSoup as bs ,Tag
 from db.models import Course, Teacher, Activity, File
 import logging as log
 from db.enums import ActivityTypes, FileExtensions
-import time
 from urllib.parse import unquote_plus
-
+from config import Config
+from config import Config
 
 async def getCookie(session : ClientSession) -> str:
     """
@@ -16,7 +16,7 @@ async def getCookie(session : ClientSession) -> str:
     Зачем они нужны при входе, я не знаю. Также я заметил, что и рандомная строка вместо
     `Cookie` иногда тоже позволяет войти.
     """
-    async with session.get('https://proxy.bmstu.ru:8443/cas/login?service=https://e-learning.bmstu.ru/kaluga/login/index.php?authCAS=CAS')\
+    async with session.get(Config.Url.GetCookie)\
     as r:
         page = bs(await r.text(), 'html.parser')
     find = page.find('section', class_ = 'row btn-row')
@@ -27,8 +27,8 @@ async def getPayload(session : ClientSession) -> dict:
     Сформировать `payload` для post запроса.
     """
     return {
-        'username' : environ.get("BMSTULogin"),
-        'password' : environ.get("BMSTUPassword"),
+        'username' : Config.Env.GetLogin(),
+        'password' : Config.Env.GetPassword(),
         'execution' : await getCookie(session),
         '_eventId' : 'submit'
     }

@@ -5,6 +5,7 @@ import logging as log
 from aiohttp import CookieJar, ClientSession
 import parse.parseFunctions as pf
 import os
+from config import Config
 
 class ParseWorker:
     """
@@ -58,7 +59,7 @@ class ParseWorker:
             log.warning(f'Не удалось загрузить Cookie из файла: {str(e)}')
         # Открытие сайта без входа
         try:
-            async with self.session.get('https://e-learning.bmstu.ru/kaluga/') as r:
+            async with self.session.get(Config.Url.Site) as r:
                 text = await r.text()
                 page = bs(text, 'html.parser')
         except Exception as e:
@@ -68,8 +69,7 @@ class ParseWorker:
         find = page.find('span', class_ = 'login')
         if find:
             log.info("Первичный вход не удался. Создание новой сессии.")
-            async with self.session.post(
-            'https://proxy.bmstu.ru:8443/cas/login?service=https%3A%2F%2Fe-learning.bmstu.ru%2Fkaluga%2Flogin%2Findex.php%3FauthCAS%3DCAS',
+            async with self.session.post(Config.Url.Login,
             data = await pf.getPayload(self.session)) as r:
                 text = await r.text()
                 self.mainPage = bs(text, 'html.parser')

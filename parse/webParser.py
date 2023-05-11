@@ -1,13 +1,7 @@
 import logging as log
 from db.database import DatabaseManager
-from parse.parseWorker import ParseWorker
 import asyncio
 from parse.tasks.taskManager import TaskManger
-
-import time
-
-
-
 
 class WebParser:
     """

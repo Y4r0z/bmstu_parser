@@ -1,6 +1,6 @@
-from sqlalchemy import create_engine, select, insert, update
+from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from db.models import Teacher, Course, Activity, ActivityType, File, FileType, FileExtension, Base, BaseLinkModel, BaseName
+from db.models import Teacher, Course, Activity, Base, BaseLinkModel, BaseName
 from typing import List
 
 

@@ -1,7 +1,6 @@
 from parse.parseWorker import ParseWorker
 from db.models import Course, Activity
 from bs4 import Tag
-import time
 
 class Task:
     """
@@ -29,7 +28,6 @@ class Task:
         raise NotImplementedError('Exec method is not implemented!')
 
     def start(self):
-        self.timer = time.time()
         self.started = True
         self.tasks.remove(self)
 

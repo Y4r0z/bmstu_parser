@@ -1,6 +1,6 @@
 from parse.tasks.tasks import Task, AllCoursesTask, ActivityTask, FileTask, CourseTask
 from parse.parseWorker import ParseWorker
-from db.models import Course, Activity, File
+from db.models import Course, Activity
 from bs4 import Tag
 from asyncio import AbstractEventLoop
 import asyncio
