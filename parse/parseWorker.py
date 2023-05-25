@@ -14,7 +14,6 @@ class ParseWorker:
     в одном цикле `asyncio`.
     """
     Count = 0
-    CookiePath = 'data/workers/'
 
     @classmethod
     async def create(cls):
@@ -32,9 +31,6 @@ class ParseWorker:
         log.info(f'Parse Worker {self.id} created')
         await self.checkLogin()
         self.busy = False
-    
-    def __del__(self):
-        asyncio.shield(self.close())
     
     async def close(self):
         self.saveCookies()
@@ -56,7 +52,7 @@ class ParseWorker:
             self.loadCookies()
             log.info('Cookie загружены из файла')
         except Exception as e:
-            log.warning(f'Не удалось загрузить Cookie из файла: {str(e)}')
+            log.warning(f'Не удалось зCагрузить Cookie из файла: {str(e)}')
         # Открытие сайта без входа
         try:
             async with self.session.get(Config.Url.Site) as r:
@@ -68,7 +64,7 @@ class ParseWorker:
         # Проверка работоспособности сессии
         find = page.find('span', class_ = 'login')
         if find:
-            log.info("Первичный вход не удался. Создание новой сессии.")
+            log.warning("Первичный вход не удался. Создание новой сессии.")
             async with self.session.post(Config.Url.Login,
             data = await pf.getPayload(self.session)) as r:
                 text = await r.text()
@@ -110,9 +106,9 @@ class ParseWorker:
 
     
     def saveCookies(self):
-        path = self.CookiePath + f'cookie{self.id}'
+        path = Config.Path.Cookie + f'cookie{self.id}'
         os.makedirs(os.path.dirname(path), exist_ok=True)
         self.cookies.save(path)
     
     def loadCookies(self):
-        self.cookies.load(self.CookiePath + f'cookie{self.id}')
+        self.cookies.load(Config.Path.Cookie + f'cookie{self.id}')

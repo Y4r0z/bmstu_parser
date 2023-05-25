@@ -84,7 +84,7 @@ class Activity(BaseLinkModel):
     description : Mapped[str] = mapped_column(String, nullable=True, default=None)
     typeName : Mapped[str] = mapped_column(ForeignKey("activityType.name"))
     type : Mapped["ActivityType"] = relationship(back_populates="activities")
-    courseLink : Mapped[str] = mapped_column(ForeignKey('course.link'))
+    courseLink : Mapped[str] = mapped_column(ForeignKey('course.link'), nullable=True, default=None)
     course : Mapped["Course"] = relationship(back_populates='activities')
     files : Mapped[List["File"]] = relationship(back_populates='activity')
 

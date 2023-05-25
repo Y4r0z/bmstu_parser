@@ -10,11 +10,13 @@ from debug.timer import Timer
 """
 
 def main():
+    timer = Timer('MAIN')
     load_dotenv(find_dotenv())
     #filename='data/app_logs.txt', encoding='utf-8', 
     log.basicConfig(level=log.WARNING)
     wb = WebParser()
     wb.start()
+    timer.print()
 
 if __name__ == '__main__':
     main()

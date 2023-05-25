@@ -2,6 +2,7 @@ import logging as log
 from db.database import DatabaseManager
 import asyncio
 from parse.tasks.taskManager import TaskManger
+from config import Config
 
 class WebParser:
     """
@@ -14,7 +15,7 @@ class WebParser:
 
     def start(self):
         self.loop = asyncio.get_event_loop()
-        self.tm = TaskManger(self.loop, 4)
+        self.tm = TaskManger(self.loop, Config.WorkersCount)
         """
         Заметка о быстродействии нескольких воркеров. Минимальное время работы - на 7 воркерах,
         на 8 уже начинается замедление.
@@ -23,8 +24,9 @@ class WebParser:
         """
         courses = []
         self.tm.parseAllCourses(courses)
-        self.loop.create_task(self.tm.start(recursive=False))
-        self.loop.run_forever() 
+        #self.loop.create_task(self.tm.start(recursive=True))
+        self.loop.run_until_complete(self.tm.start(recursive=True))
+        self.loop.close()
         try:
             self.db.addCourses(courses)
         except Exception as e:

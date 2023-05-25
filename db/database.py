@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from db.models import Teacher, Course, Activity, Base, BaseLinkModel, BaseName
 from typing import List
-
+from config import Config
 
 class DatabaseManager:
     """
@@ -11,7 +11,7 @@ class DatabaseManager:
     в иерархическом виде.
     """
     def __init__(self) -> None:
-        self.engine = create_engine('sqlite:///data/bmstu.db', echo=False)
+        self.engine = create_engine('sqlite:///' + Config.Path.Database, echo=False)
         Base.metadata.create_all(self.engine)
 
     def _addSingle(self, o):

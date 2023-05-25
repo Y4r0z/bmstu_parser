@@ -4,6 +4,7 @@ from db.models import Course, Activity
 from bs4 import Tag
 from asyncio import AbstractEventLoop
 import asyncio
+from config import Config
 
 class TaskManger:
     """
@@ -26,7 +27,8 @@ class TaskManger:
             for task in self.tasks:
                 for worker in self.workers:
                     if task.started == False and worker.busy == False:
-                        if task.id > 100 and False: return
+                        if Config.MaximumTasks and task.id > Config.MaximumTasks:
+                            self._forceStop = True
                         task.started = True
                         worker.busy = True
                         print(f'Exec task: {task.id} by worker {worker.id}. n: {n}. Type: {task.__class__.__name__}')
@@ -34,8 +36,11 @@ class TaskManger:
                         n = 0
             await asyncio.sleep(0.01)
             n+=1
+        ('Collecting all tasks')
+        while len(asyncio.all_tasks()) > 1:
+            await asyncio.sleep(0.1)
         print('Stopped task manager')
-        self.close()
+        await self.close()
 
 
     def parseAllCourses(self, store : list[Course]):
@@ -64,14 +69,11 @@ class TaskManger:
                 flag += 1
         return flag == self.workersCount
 
-    def close(self):
+    async def close(self):
         self._forceStop = True
-        self.loop.stop()
-        
-    def __del__(self):
-        self.tasks.clear()
-        self.workers.clear()
-        self.close()
+        for worker in self.workers:
+            await worker.close()
+        #self.loop.stop()
     
     async def _addWorker(self):
         self.workers.append(await ParseWorker.create())

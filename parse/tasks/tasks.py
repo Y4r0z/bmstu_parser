@@ -74,7 +74,7 @@ class FileTask(Task):
     def __init__(self, tasks : list, activity : Activity) -> None:
         super().__init__(tasks)
         self.activity = activity
-    async def exec(self, worker : ParseWorker):
+    async def exec(self, worker : ParseWorker, recursive : bool = True):
         self.start()
         await worker.getFiles(self.activity)
         self.end()
